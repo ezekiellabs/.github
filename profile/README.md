@@ -16,3 +16,19 @@ A detection-coverage analyzer for the command line. Point it at a command,
 script, or playbook and it resolves each action to the MITRE ATT&CK technique(s)
 it implements, the host telemetry it emits, and the detections that would fire
 with a 0–100 detectability score. *"What would a defender see?"*
+
+```sh
+cargo install opseclint
+```
+
+*More on the way.*
+
+## What we're about
+
+- **Honesty over theater.** A tool that says "you're covered" had better be right. Absence of a finding is never proof of stealth.
+- **Purple by default.** Red and blue are two readings of the same event. Our tools speak both.
+- **Open and self-contained.** MIT-licensed.
+
+---
+
+<sub>Named after a kid with sharp eyes. Developed in Omaha.</sub>
