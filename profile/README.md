@@ -14,5 +14,5 @@ designed to drop into a CI pipeline or a purple-team engagement without ceremony
 ### 🛡️ [opseclint](https://github.com/ezekiellabs/opseclint)
 A detection-coverage analyzer for the command line. Point it at a command,
 script, or playbook and it resolves each action to the MITRE ATT&CK technique(s)
-it implements, the host telemetry it emits, and the detections that would fire —
+it implements, the host telemetry it emits, and the detections that would fire
 with a 0–100 detectability score. *"What would a defender see?"*
