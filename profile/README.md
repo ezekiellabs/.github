@@ -1,7 +1,7 @@
 <div align="center">
-  <img src="assets/eye-mark.svg" alt="Ezekiel Labs" width="112" height="112">
+  <img src="assets/owl.svg" alt="Ezekiel Labs" width="112" height="112">
   <h1>Ezekiel Labs</h1>
-  <p><strong>Open-source red · blue · purple team tooling.<br>Built to show you what a defender would actually see.</strong></p>
+  <p><strong>Open-source red · blue · purple team tooling.</strong></p>
 </div>
 
 Ezekiel Labs builds practical security tools that live in the space between
@@ -13,7 +13,7 @@ designed to drop into a CI pipeline or a purple-team engagement without ceremony
 
 ## Tools
 
-### 🛡️ [opseclint](https://github.com/ezekiellabs/opseclint)
+### <img src="assets/eye-mark.svg" alt="" width="22" height="22" align="top"> [opseclint](https://github.com/ezekiellabs/opseclint)
 
 A detection-coverage analyzer for the command line. Point it at a command,
 script, or playbook and it resolves each action to the MITRE ATT&CK technique(s)
