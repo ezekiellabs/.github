@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" fill="none" aria-label="Zeke the owl mascot">
+  <!-- ear tufts -->
+  <path d="M62 62 C 58 46 56 34 64 34 C 76 36 84 52 88 62 Z" fill="#565f89"/>
+  <path d="M138 62 C 142 46 144 34 136 34 C 124 36 116 52 112 62 Z" fill="#565f89"/>
+  <!-- body / head -->
+  <ellipse cx="100" cy="112" rx="66" ry="66" fill="#565f89"/>
+  <!-- brow -->
+  <path d="M64 92 C 74 82 88 80 100 84 C 112 80 126 82 136 92"
+        stroke="#bb9af7" stroke-width="8" stroke-linecap="round" fill="none"/>
+  <!-- left eye: red ring -->
+  <circle cx="78" cy="110" r="21" fill="#f7768e"/>
+  <circle cx="78" cy="110" r="13" fill="#1a1b26"/>
+  <circle cx="78" cy="110" r="6.5" fill="#bb9af7"/>
+  <!-- right eye: blue ring -->
+  <circle cx="122" cy="110" r="21" fill="#7aa2f7"/>
+  <circle cx="122" cy="110" r="13" fill="#1a1b26"/>
+  <circle cx="122" cy="110" r="6.5" fill="#bb9af7"/>
+  <!-- beak -->
+  <path d="M100 130 L 109 139 L 100 150 L 91 139 Z" fill="#f7768e"/>
+  <!-- feet -->
+  <rect x="84" y="174" width="12" height="9" rx="4.5" fill="#bb9af7"/>
+  <rect x="104" y="174" width="12" height="9" rx="4.5" fill="#bb9af7"/>
+</svg>
