@@ -35,7 +35,3 @@ _More on the way._
 ---
 
 <sub>Named after a kid with sharp eyes. Developed in Omaha.</sub>
-
-```
-
-```
