@@ -3,5 +3,5 @@
     "description": "fmt --check, clippy -D warnings, build, and test on stable Rust.",
     "iconName": "octicon gear",
     "categories": ["Rust", "Continuous integration"],
-    "filePatterns": ["Cargo.toml$"]
+    "filePatterns": ["^Cargo\\.toml$"]
 }
