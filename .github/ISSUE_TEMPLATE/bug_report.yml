@@ -1,0 +1,59 @@
+# Organization-wide default issue template.
+#
+# NOTE: GitHub treats ISSUE_TEMPLATE as all-or-nothing. A repository with ANY
+# file in its own .github/ISSUE_TEMPLATE folder ignores this entire directory —
+# so opseclint, which has its own, will never see these. They exist for
+# repositories that do not yet define their own.
+#
+# No `labels:` here on purpose: a template that assigns a label requires that
+# label to exist in both this repository and the consuming one.
+---
+name: Bug report
+description: Something produces the wrong result, crashes, or will not install.
+body:
+  - type: markdown
+    attributes:
+      value: |
+        For security vulnerabilities, do **not** file here — use the
+        repository's Security tab → *Report a vulnerability*. See the
+        [security policy](https://github.com/ezekiellabs/.github/blob/main/SECURITY.md).
+
+  - type: input
+    id: version
+    attributes:
+      label: Version or commit
+      description: "`--version` output, a release tag, or a commit SHA. \"Latest\" is not a version."
+      placeholder: "v1.2.0 or a commit SHA"
+    validations:
+      required: true
+
+  - type: input
+    id: environment
+    attributes:
+      label: Environment
+      placeholder: "e.g. macOS 15.3 arm64, Ubuntu 24.04 x86_64, Windows 11"
+    validations:
+      required: false
+
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened
+      description: What you ran, what you expected, and what you got instead.
+      placeholder: |
+        Command:
+        Expected:
+        Actual:
+    validations:
+      required: true
+
+  - type: textarea
+    id: repro
+    attributes:
+      label: Input that reproduces it
+      description: >
+        The exact input, if you can share it. A wrong result is very hard to
+        debug from a description alone.
+      render: shell
+    validations:
+      required: false

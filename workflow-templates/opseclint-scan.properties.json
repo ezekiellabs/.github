@@ -1,0 +1,6 @@
+{
+    "name": "opseclint detection coverage",
+    "description": "Map the actions in a script or playbook to ATT&CK techniques, host telemetry, and the detections that would fire. Uploads SARIF to code scanning.",
+    "iconName": "opseclint",
+    "categories": ["Security", "Code scanning"]
+}

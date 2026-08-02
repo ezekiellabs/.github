@@ -32,6 +32,22 @@ _More on the way._
 - **Purple by default.** Red and blue are two readings of the same event.
 - **Open and self-contained.** MIT-licensed.
 
+Written down at greater length in
+[GOVERNANCE.md](https://github.com/ezekiellabs/.github/blob/main/GOVERNANCE.md).
+
+## Contributing
+
+[Contributing](https://github.com/ezekiellabs/.github/blob/main/CONTRIBUTING.md)
+·
+[Code of Conduct](https://github.com/ezekiellabs/.github/blob/main/CODE_OF_CONDUCT.md)
+·
+[Security](https://github.com/ezekiellabs/.github/blob/main/SECURITY.md)
+·
+[Support](https://github.com/ezekiellabs/.github/blob/main/SUPPORT.md)
+
+These are organization-wide defaults; a repository with its own copy supersedes
+them.
+
 ---
 
 <sub>Named after a kid with sharp eyes. Developed in Omaha.</sub>

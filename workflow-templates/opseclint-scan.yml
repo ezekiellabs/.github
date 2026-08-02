@@ -1,0 +1,44 @@
+# Detection-coverage scan with opseclint: resolve the actions in a script or
+# playbook to the ATT&CK techniques they implement, the host telemetry they
+# emit, and the Sigma detections that would fire — then surface the result in
+# GitHub code scanning.
+#
+# https://github.com/ezekiellabs/opseclint
+name: opseclint detection coverage
+
+on:
+  push:
+    branches: [$default-branch]
+  pull_request:
+    branches: [$default-branch]
+
+jobs:
+  opseclint:
+    name: detection coverage
+    runs-on: ubuntu-latest
+    permissions:
+      security-events: write
+      contents: read
+      actions: read
+    steps:
+      - uses: actions/checkout@v7
+
+      # Pinned to an exact release on purpose: a security tool should not float
+      # on a moving major tag without you deciding to.
+      - name: Analyze
+        uses: ezekiellabs/opseclint@v1.2.0
+        with:
+          # The file or directory to analyze.
+          path: scripts/
+          # linux-auditd | windows-sysmon | macos-es
+          platform: linux-auditd
+          sarif-file: opseclint.sarif
+          # Optional: fail the job when the loudest action scores at or above
+          # this detectability. Remove to report without gating.
+          # fail-threshold: "75"
+
+      - name: Upload SARIF to code scanning
+        uses: github/codeql-action/upload-sarif@v4
+        with:
+          sarif_file: opseclint.sarif
+          category: opseclint
