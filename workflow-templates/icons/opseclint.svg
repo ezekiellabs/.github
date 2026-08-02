@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" fill="none" aria-label="monochrome eye mark">
+          <g transform="translate(100,100) scale(0.84) translate(-100,-100)" stroke="currentColor">
+            <g stroke-width="13" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M 24 100 C 58 42 142 42 176 100 C 142 158 58 158 24 100 Z" />
+            </g>
+            <circle cx="100" cy="100" r="26" fill="currentColor" stroke="none" />
+          </g>
+        </svg>

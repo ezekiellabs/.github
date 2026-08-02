@@ -1,0 +1,12 @@
+---
+blank_issues_enabled: false
+contact_links:
+  # Deliberately no link to a Discussions page here: this default is inherited
+  # by repositories that may or may not have Discussions enabled, so route
+  # through SUPPORT.md, which explains where each kind of question goes.
+  - name: Questions, ideas, and where things go
+    url: https://github.com/ezekiellabs/.github/blob/main/SUPPORT.md
+    about: Which channel fits your question.
+  - name: Security vulnerability
+    url: https://github.com/ezekiellabs/.github/blob/main/SECURITY.md
+    about: Report privately via this repository's Security tab, NOT a public issue.
