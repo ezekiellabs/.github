@@ -23,11 +23,15 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
-      # Pinned to an exact release on purpose: a security tool should not float
-      # on a moving major tag without you deciding to.
+      # Pinned twice on purpose, because these pin different things: the `uses:`
+      # ref pins the composite action's code, while `version:` pins the
+      # opseclint binary it downloads. That input defaults to `latest`, so
+      # without it the tool would still float even though the action does not.
+      # A security tool should only move when you decide it moves.
       - name: Analyze
         uses: ezekiellabs/opseclint@v1.2.0
         with:
+          version: v1.2.0
           # The file or directory to analyze.
           path: scripts/
           # linux-auditd | windows-sysmon | macos-es
