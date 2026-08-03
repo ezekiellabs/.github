@@ -24,7 +24,8 @@ with a 0–100 detectability score. _"What would a defender see?"_
 cargo install opseclint
 ```
 
-_More on the way._
+_More on the way — see the
+[roadmap](https://github.com/ezekiellabs/.github/blob/main/ROADMAP.md)._
 
 ## What we're about
 
