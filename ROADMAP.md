@@ -12,13 +12,15 @@ This file is the queue. It is deliberately ordered, deliberately honest about
 what has not started, and it keeps the ideas we ranked *low* along with the
 reason — a roadmap that only lists winners is a marketing page.
 
-Three tiers, and the difference matters:
+Five sections, and the differences matter:
 
+- **Shipped** — released and in use.
+- **Next** — committed, and the thing being worked on.
 - **Queued** — scoped, and buildable with what exists today.
 - **Horizon** — larger bets that would define the org rather than extend it.
-  Each depends on something in the queue landing first. Listing them is not the
-  same as committing to them, and they are deliberately kept apart so the
-  near-term list is not read as vaguer than it is.
+  Each is gated on something earlier on this page landing first. Listing them is
+  not the same as committing to them, and they are deliberately kept apart so
+  the near-term work is not read as vaguer than it is.
 - **Considered, ranked low** — declined, with the reasoning kept.
 
 Each entry says what it is, why it sits where it does, what it reuses, and what
@@ -172,9 +174,10 @@ sources. Closer to a second company than a second tool.
 
 ## Horizon
 
-Bigger bets. Each depends on something in the queue landing first, and each is
-sketched rather than specified — that is the honest state of them. Roughly
-ordered by how soon the dependency clears.
+Bigger bets. Each is gated on something earlier on this page landing first —
+`opseclint-core` under Next, or an entry from the queue — and each is sketched
+rather than specified. That is the honest state of them. Roughly ordered by how
+soon the dependency clears.
 
 ### Agent substrate — ground truth for LLM agents doing security work
 
