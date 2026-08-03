@@ -61,9 +61,43 @@ than the owner.
 
 ## Queued
 
-Ordered by conviction, not by size. None started.
+Ordered by what unblocks the most, then by conviction. Detection feasibility leads
+because four of the six Horizon bets and one queued entry are gated on it — it is
+the hinge for most of this page. None started.
 
-### 1. `sigmalint` — static analysis for detection content
+### 1. Detection feasibility — what your stack can never see
+
+Two inputs: a ruleset (SigmaHQ or your own), and a description of what you
+actually collect (a Sysmon config XML, an auditd rules file, an ESF
+subscription list, an index-field dump). Output: which rules are dead on
+arrival because your sensors never populate the fields they key on.
+
+> 412 of 2,216 rules can never fire here. 180 need script-block logging.
+> 96 need file-create events you exclude in `sysmonconfig.xml:214`.
+
+**Why first:** it unblocks more than anything else here. Entry 5 is this plus a
+scheduler, and four of the six Horizon bets — negative-space, incident replay,
+the collection compiler, and the Ezekiel Index — are all gated on it. Nothing
+else on this page has that fan-out.
+
+On its own merits it also inverts opseclint. opseclint asks "what would a
+defender see?" — this asks "given what you collect, what can't you see, no
+matter how many rules you buy?" Same purple thesis, one layer down. Counting
+rules is the coverage metric everyone uses and it is close to meaningless; this
+replaces it with a harder question.
+
+**Reuses:** the Sigma parser, `sigma_eval`'s field extraction
+(`referenced_fields` already does most of the work), the platform triple, the
+render layer, `--navigator`.
+
+**Evidence it's real:** opseclint's own verification numbers are exactly this
+measurement, arrived at accidentally, against its own knowledge base.
+
+**Risk:** Sysmon config semantics are genuinely nasty — include/exclude
+precedence, rule groups, `onmatch` inversion. auditd and ESF are far simpler.
+Ship Linux first.
+
+### 2. `sigmalint` — static analysis for detection content
 
 opseclint analyzes *commands*. This analyzes *rules*: selections referencing
 fields their declared logsource never emits, selections broad enough to be
@@ -81,7 +115,7 @@ by default" structural rather than a slogan.
 
 **Reuses:** `sigma_eval`'s parser and field extraction, wholesale.
 
-### 2. Detection regression harness — CI for detection content
+### 3. Detection regression harness — CI for detection content
 
 A ruleset plus a labeled corpus of true-positive and known-benign command
 lines. Run every rule; report which stopped firing after an edit, and which
@@ -96,7 +130,7 @@ recurring use rather than a one-off report.
 **Risk:** the corpus is the product. A thin corpus makes a harness that passes
 everything.
 
-### 3. "Explain this rule" — trigger shapes and false-positive surface
+### 4. "Explain this rule" — trigger shapes and false-positive surface
 
 Point it at one Sigma rule: what command shapes would trigger it, and what it
 hits in the benign corpus.
@@ -106,43 +140,16 @@ mostly wiring parts that exist. Solves a real triage annoyance ("why did this
 fire?"). Small enough that it should ship as an **opseclint flag first**, and
 only become its own tool if people actually reach for it.
 
-### 4. Detection feasibility — what your stack can never see
-
-Two inputs: a ruleset (SigmaHQ or your own), and a description of what you
-actually collect (a Sysmon config XML, an auditd rules file, an ESF
-subscription list, an index-field dump). Output: which rules are dead on
-arrival because your sensors never populate the fields they key on.
-
-> 412 of 2,216 rules can never fire here. 180 need script-block logging.
-> 96 need file-create events you exclude in `sysmonconfig.xml:214`.
-
-**Why here:** it inverts opseclint. opseclint asks "what would a defender see?"
-— this asks "given what you collect, what can't you see, no matter how many
-rules you buy?" Same purple thesis, one layer down. Counting rules is the
-coverage metric everyone uses and it is close to meaningless; this replaces it
-with a harder question.
-
-**Reuses:** the Sigma parser, `sigma_eval`'s field extraction
-(`referenced_fields` already does most of the work), the platform triple, the
-render layer, `--navigator`.
-
-**Evidence it's real:** opseclint's own verification numbers are exactly this
-measurement, arrived at accidentally, against its own knowledge base.
-
-**Risk:** Sysmon config semantics are genuinely nasty — include/exclude
-precedence, rule groups, `onmatch` inversion. auditd and ESF are far simpler.
-Ship Linux first.
-
 ### 5. Visibility drift monitor
 
 Snapshot sensor config and ruleset; diff over time; alert when a change
 silently reduces coverage — "an exclusion added to `sysmonconfig.xml` took 14
 techniques dark."
 
-**Why here:** this is entry 4 with time added, and it is the version with
+**Why here:** this is entry 1 with time added, and it is the version with
 budget attached. "Prove our detection coverage didn't regress this quarter" is
 a compliance sentence. Harder to sell to an individual, much easier to a team.
-It should not be built before 4, because it is 4 plus a scheduler.
+It should not be built before 1, because it is 1 plus a scheduler.
 
 ### 6. Engagement reporter — the deliverable, not the terminal
 
@@ -215,7 +222,7 @@ your alerts" but "here are the 340 things that would leave no trace here."
 artifact a defender could hold, and it is the purest expression of the thesis —
 absence of a finding, made explicit and enumerable instead of assumed.
 
-**Depends on:** detection feasibility (queue 4), plus real knowledge-base
+**Depends on:** detection feasibility (queue 1), plus real knowledge-base
 breadth.
 
 **The hard part is an honesty trap.** "Invisible" is only meaningful relative
@@ -233,7 +240,7 @@ step-by-step verdict with the specific collection gap at each step.
 **Why it matters:** every team does this by hand, badly, in a meeting. It turns
 threat intel from reading material into a ranked remediation list.
 
-**Depends on:** detection feasibility (queue 4).
+**Depends on:** detection feasibility (queue 1).
 
 **The hard part:** parsing prose intel into a technique sequence is the
 unsolved half. The tractable version takes structured input — an ATT&CK
@@ -252,7 +259,7 @@ volume you can afford, emit an optimized config.
 engineering, and it is the natural inverse of the feasibility checker — same
 model, run backwards.
 
-**Depends on:** detection feasibility (queue 4), whose config parsing this
+**Depends on:** detection feasibility (queue 1), whose config parsing this
 reuses in reverse.
 
 **The hard part, and it is a different kind of hard:** this is the first tool
@@ -272,8 +279,8 @@ requires, and refuses to claim coverage the environment cannot support.
 — copy a YAML file from a repo, hope. Declared dependencies plus a feasibility
 check is the piece that makes "detection-as-code" mean something.
 
-**Depends on:** `sigmalint` (queue 1), the regression harness (queue 2), and
-feasibility (queue 4). Dependency resolution is meaningless without all three.
+**Depends on:** `sigmalint` (queue 2), the regression harness (queue 3), and
+feasibility (queue 1). Dependency resolution is meaningless without all three.
 
 **The hard part:** package managers are won by distribution and content, not by
 design. This is worthless without publishers and adopters, which makes it an
@@ -291,7 +298,7 @@ and largely qualitative. An empirical, reproducible benchmark would be cited
 constantly — and it is close to free, because it is existing tooling pointed at
 public data.
 
-**Depends on:** detection feasibility (queue 4). Cheapest item in this section
+**Depends on:** detection feasibility (queue 1). Cheapest item in this section
 by a wide margin once that exists.
 
 **The hard part:** publishing a number that grades other people's ecosystems
@@ -311,16 +318,16 @@ coverage plus duplicates and orphans.
 
 Cheap — `--navigator` and the technique index already exist, so maybe two
 weeks. But DeTT&CT and Sigma's own tooling occupy this space, and it measures
-rule *presence*, which is precisely the metric entry 4 exists to debunk.
+rule *presence*, which is precisely the metric entry 1 exists to debunk.
 Building it would put us slightly at odds with our own thesis.
 
 ### Sensor-config auditor
 
-The config half of entry 4 on its own: given a Sysmon config, which of
+The config half of entry 1 on its own: given a Sysmon config, which of
 opseclint's 233 modeled actions go dark? No ruleset involved.
 
 Smallest scope and ships fastest, but it is a **feature, not a product** — it
-belongs as an opseclint flag. It is also the right way to prototype entry 4:
+belongs as an opseclint flag. It is also the right way to prototype entry 1:
 add config parsing behind a flag, see whether the output is compelling, then
 split it out.
 
