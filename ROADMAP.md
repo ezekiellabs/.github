@@ -72,7 +72,7 @@ by default" structural rather than a slogan.
 
 ### 2. Detection regression harness — CI for detection content
 
-A rule set plus a labeled corpus of true-positive and known-benign command
+A ruleset plus a labeled corpus of true-positive and known-benign command
 lines. Run every rule; report which stopped firing after an edit, and which
 started firing on benign input.
 
@@ -97,7 +97,7 @@ only become its own tool if people actually reach for it.
 
 ### 4. Detection feasibility — what your stack can never see
 
-Two inputs: a rule set (SigmaHQ or your own), and a description of what you
+Two inputs: a ruleset (SigmaHQ or your own), and a description of what you
 actually collect (a Sysmon config XML, an auditd rules file, an ESF
 subscription list, an index-field dump). Output: which rules are dead on
 arrival because your sensors never populate the fields they key on.
@@ -124,7 +124,7 @@ Ship Linux first.
 
 ### 5. Visibility drift monitor
 
-Snapshot sensor config and rule set; diff over time; alert when a change
+Snapshot sensor config and ruleset; diff over time; alert when a change
 silently reduces coverage — "an exclusion added to `sysmonconfig.xml` took 14
 techniques dark."
 
@@ -178,7 +178,7 @@ Building it would put us slightly at odds with our own thesis.
 ### Sensor-config auditor
 
 The config half of entry 4 on its own: given a Sysmon config, which of
-opseclint's 233 modeled actions go dark? No rule set involved.
+opseclint's 233 modeled actions go dark? No ruleset involved.
 
 Smallest scope and ships fastest, but it is a **feature, not a product** — it
 belongs as an opseclint flag. It is also the right way to prototype entry 4:
