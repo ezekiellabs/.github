@@ -12,6 +12,17 @@ This file is the queue. It is deliberately ordered, deliberately honest about
 what has not started, and it keeps the ideas we ranked *low* along with the
 reason — a roadmap that only lists winners is a marketing page.
 
+Five sections, and the differences matter:
+
+- **Shipped** — released and in use.
+- **Next** — committed, and the thing being worked on.
+- **Queued** — scoped, and buildable with what exists today.
+- **Horizon** — larger bets that would define the org rather than extend it.
+  Each is gated on something earlier on this page landing first. Listing them is
+  not the same as committing to them, and they are deliberately kept apart so
+  the near-term work is not read as vaguer than it is.
+- **Considered, ranked low** — declined, with the reasoning kept.
+
 Each entry says what it is, why it sits where it does, what it reuses, and what
 the hard part is.
 
@@ -160,6 +171,134 @@ call, what does it log and what detects it.
 **Why last:** the largest audience and the least crowded, but it shares almost
 no code with anything above — a new knowledge base, a new event model, new rule
 sources. Closer to a second company than a second tool.
+
+## Horizon
+
+Bigger bets. Each is gated on something earlier on this page landing first —
+`opseclint-core` under Next, or an entry from the queue — and each is sketched
+rather than specified. That is the honest state of them. Roughly ordered by how
+soon the dependency clears.
+
+### Agent substrate — ground truth for LLM agents doing security work
+
+`opseclint-core` ships an MCP server over the knowledge base. This is the
+larger version: a stable, versioned service that answers *what does this action
+emit, what detects it, and could **you** see it* across every tool in the
+toolkit, not just opseclint.
+
+**Why it matters:** agents are being pointed at security work right now and
+they have no ground truth. They hallucinate detections and confidently misjudge
+what is observable. An agent grounded in a real knowledge base and a real
+evaluator is materially less wrong, and that makes this infrastructure rather
+than a tool.
+
+**Depends on:** `opseclint-core`, then breadth from the queue.
+
+**The hard part, and it is the whole thing:** agents amplify whatever they are
+given. Our abstain-honestly property stops being a nice trait and becomes
+load-bearing — an `INDETERMINATE` that an agent silently rounds to "not
+detected" is worse than no answer at all. The API has to make uncertainty
+impossible to discard, which is an interface design problem more than a
+technical one.
+
+**Timing:** the most time-sensitive item on this page. The window where being
+the obvious grounding source is winnable is now, not in three years.
+
+### Negative-space engine — enumerate what is invisible
+
+Every security tool enumerates what you *can* see. Invert it: given a sensor
+config and a ruleset, produce the techniques that are invisible in this
+environment, ranked by how much an adversary would want them. Not "here are
+your alerts" but "here are the 340 things that would leave no trace here."
+
+**Why it matters:** no one can produce this today. It is the single most useful
+artifact a defender could hold, and it is the purest expression of the thesis —
+absence of a finding, made explicit and enumerable instead of assumed.
+
+**Depends on:** detection feasibility (queue 4), plus real knowledge-base
+breadth.
+
+**The hard part is an honesty trap.** "Invisible" is only meaningful relative
+to a technique universe we have modeled, and 233 entries is a floor, not a map.
+An incomplete blind-spot list presented as complete is exactly the failure this
+org exists to argue against — it would be our own tool telling the lie we
+built the org to expose. Any version of this has to lead with what it does not
+model, and that framing has to survive contact with marketing.
+
+### Counterfactual incident replay — "would we have seen this?"
+
+Feed in a breach report, an intel writeup, or an emulation plan; get back a
+step-by-step verdict with the specific collection gap at each step.
+
+**Why it matters:** every team does this by hand, badly, in a meeting. It turns
+threat intel from reading material into a ranked remediation list.
+
+**Depends on:** detection feasibility (queue 4).
+
+**The hard part:** parsing prose intel into a technique sequence is the
+unsolved half. The tractable version takes structured input — an ATT&CK
+Navigator layer, a TTP list, an emulation plan — and leaves free-text ingestion
+to a later, clearly-labeled, best-effort mode. Whatever assists the parsing,
+the *verdict* must stay mechanically derived and checkable; a plausible-sounding
+answer here is worse than none.
+
+### Collection compiler — coverage-driven sensor configuration
+
+Today Sysmon configs are hand-written XML copied from a GitHub repo and rarely
+audited. Invert the direction: declare the coverage you want and the event
+volume you can afford, emit an optimized config.
+
+**Why it matters:** it reframes sensor configuration from folklore into
+engineering, and it is the natural inverse of the feasibility checker — same
+model, run backwards.
+
+**Depends on:** detection feasibility (queue 4), whose config parsing this
+reuses in reverse.
+
+**The hard part, and it is a different kind of hard:** this is the first tool
+whose output people *deploy*. Everything else on this page reports; a bug here
+degrades someone's actual security posture rather than misdescribing it. It
+also needs an event-volume cost model, and nobody has good public data for
+that. Blast radius argues for shipping it as a proposer — emit a diff and an
+explanation, never write the live config.
+
+### Detection package manager — dependency resolution for detection content
+
+Signed, versioned detection bundles that **declare their telemetry
+dependencies**. Install a technique bundle and it tells you what collection it
+requires, and refuses to claim coverage the environment cannot support.
+
+**Why it matters:** detection content today ships the way software did in 1998
+— copy a YAML file from a repo, hope. Declared dependencies plus a feasibility
+check is the piece that makes "detection-as-code" mean something.
+
+**Depends on:** `sigmalint` (queue 1), the regression harness (queue 2), and
+feasibility (queue 4). Dependency resolution is meaningless without all three.
+
+**The hard part:** package managers are won by distribution and content, not by
+design. This is worthless without publishers and adopters, which makes it an
+ecosystem play with a long fuse — the right move is probably to make the
+*format* excellent and let someone else run a registry.
+
+### The Ezekiel Index — a public, reproducible measurement
+
+A recurring published measurement: across the public SigmaHQ ruleset and the
+sensor configs people actually deploy, what percentage of ATT&CK is *provably*
+detectable? Methodology open, results reproducible, run on a schedule.
+
+**Why it matters:** the DBIR and the OWASP Top 10 are enormously influential
+and largely qualitative. An empirical, reproducible benchmark would be cited
+constantly — and it is close to free, because it is existing tooling pointed at
+public data.
+
+**Depends on:** detection feasibility (queue 4). Cheapest item in this section
+by a wide margin once that exists.
+
+**The hard part:** publishing a number that grades other people's ecosystems
+invites scrutiny, which is fine — provided the methodology is genuinely open
+and the number moves when reality does. The failure mode is an index that
+becomes marketing, and the guard against it is publishing the code and the
+inputs alongside the result, every time.
 
 ## Considered, ranked low
 
