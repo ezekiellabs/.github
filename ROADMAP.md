@@ -38,34 +38,42 @@ prediction against what a sensor really logged.
 
 Remaining work is tracked in [its issues](https://github.com/ezekiellabs/opseclint/issues).
 
-## Next
-
 ### `opseclint-core` — the knowledge base and evaluator, as a library
 
-Publish the knowledge base, the `match` engine, and the Sigma rule evaluator as
-a consumable crate, plus an MCP server over the same API.
-
-Today all of it is locked inside one binary. As a library it becomes something
-other tools build on — a SIEM enrichment step, a notebook, an agent that can
-answer "what detects T1059.001 on Windows, and what would that command emit?"
-An MCP server puts the same data in front of everyone doing LLM-assisted
-security work.
-
-**Why first:** it is the substrate every tool below needs. Building the second
-tool without it means forking the knowledge base, and two copies of a knowledge
+The knowledge base, the `match` engine, the parser, the analyzer, the Sigma
+evaluator, telemetry ingest, and the EDR mapping, as a consumable crate.
+opseclint's binary is now the first *consumer* rather than the owner. A SIEM
+enrichment step, a notebook, or anything else can answer "what detects
+T1059.001 on Windows, and what would that command emit?" without forking the
+knowledge base — which was the whole point, because two copies of a knowledge
 base is how a toolkit dies.
 
-**Scope:** a stable public API over `kb`, `matcher`, `sigma_eval`, and the
-platform knowledge bases; opseclint's binary becomes the first consumer rather
-than the owner.
+The public surface was narrowed *before* publishing rather than after, since
+every name in it becomes a semver commitment on release, and every public item
+carries documentation with a CI gate holding it. A knowledge-base crate earns
+that: a field named `noise` or a variant named `Indeterminate` means something
+precise, and a consumer who guesses gets a plausible wrong answer rather than a
+compile error.
 
-## Queued
+### `opseclint-mcp` — the same knowledge base, for agents
 
-Ordered by what unblocks the most, then by conviction. Detection feasibility leads
-because four of the six Horizon bets and one queued entry are gated on it — it is
-the hinge for most of this page. None started.
+An MCP server over `opseclint-core`: `analyze_command`, `lookup_technique`,
+`evaluate_sigma_rule`, `describe_coverage`. Agents are being pointed at security
+work now with no ground truth, and this puts a real knowledge base and a real
+evaluator behind the question.
 
-### 1. Detection feasibility — what your stack can never see
+The work that mattered was not the protocol, it was the result shape. Agents
+amplify whatever they are given, which turned our abstain-honestly property from
+a nice trait into a load-bearing one — so no field in any result is a boolean
+about whether something was detected, every result names what it does not
+establish, and `describe_coverage` exists so "nothing matched" stays
+distinguishable from "not modeled". None of that makes an agent reason well. It
+makes the uncertainty impossible to drop *silently*, which was the tractable
+version of the problem.
+
+## Next
+
+### Detection feasibility — what your stack can never see
 
 Two inputs: a ruleset (SigmaHQ or your own), and a description of what you
 actually collect (a Sysmon config XML, an auditd rules file, an ESF
@@ -75,10 +83,13 @@ arrival because your sensors never populate the fields they key on.
 > 412 of 2,216 rules can never fire here. 180 need script-block logging.
 > 96 need file-create events you exclude in `sysmonconfig.xml:214`.
 
-**Why first:** it unblocks more than anything else here. Entry 5 is this plus a
-scheduler, and four of the six Horizon bets — negative-space, incident replay,
-the collection compiler, and the Ezekiel Index — are all gated on it. Nothing
-else on this page has that fan-out.
+**Status:** committed, not started. Promoted from the top of the queue now that
+`opseclint-core` has shipped.
+
+**Why this one:** it unblocks more than anything else on this page. Entry 4 below
+is this plus a scheduler, and four of the six Horizon bets — negative-space,
+incident replay, the collection compiler, and the Ezekiel Index — are all gated
+on it. Nothing else here has that fan-out.
 
 On its own merits it also inverts opseclint. opseclint asks "what would a
 defender see?" — this asks "given what you collect, what can't you see, no
@@ -88,7 +99,8 @@ replaces it with a harder question.
 
 **Reuses:** the Sigma parser, `sigma_eval`'s field extraction
 (`referenced_fields` already does most of the work), the platform triple, the
-render layer, `--navigator`.
+render layer, `--navigator` — all of it now reachable as a library rather than
+locked in a binary.
 
 **Evidence it's real:** opseclint's own verification numbers are exactly this
 measurement, arrived at accidentally, against its own knowledge base.
@@ -97,7 +109,13 @@ measurement, arrived at accidentally, against its own knowledge base.
 precedence, rule groups, `onmatch` inversion. auditd and ESF are far simpler.
 Ship Linux first.
 
-### 2. `sigmalint` — static analysis for detection content
+## Queued
+
+Ordered by what unblocks the most, then by conviction. Detection feasibility
+used to head this list and now sits under Next; what remains is ordered behind
+it. None started.
+
+### 1. `sigmalint` — static analysis for detection content
 
 opseclint analyzes *commands*. This analyzes *rules*: selections referencing
 fields their declared logsource never emits, selections broad enough to be
@@ -115,7 +133,7 @@ by default" structural rather than a slogan.
 
 **Reuses:** `sigma_eval`'s parser and field extraction, wholesale.
 
-### 3. Detection regression harness — CI for detection content
+### 2. Detection regression harness — CI for detection content
 
 A ruleset plus a labeled corpus of true-positive and known-benign command
 lines. Run every rule; report which stopped firing after an edit, and which
@@ -130,7 +148,7 @@ recurring use rather than a one-off report.
 **Risk:** the corpus is the product. A thin corpus makes a harness that passes
 everything.
 
-### 4. "Explain this rule" — trigger shapes and false-positive surface
+### 3. "Explain this rule" — trigger shapes and false-positive surface
 
 Point it at one Sigma rule: what command shapes would trigger it, and what it
 hits in the benign corpus.
@@ -140,18 +158,18 @@ mostly wiring parts that exist. Solves a real triage annoyance ("why did this
 fire?"). Small enough that it should ship as an **opseclint flag first**, and
 only become its own tool if people actually reach for it.
 
-### 5. Visibility drift monitor
+### 4. Visibility drift monitor
 
 Snapshot sensor config and ruleset; diff over time; alert when a change
 silently reduces coverage — "an exclusion added to `sysmonconfig.xml` took 14
 techniques dark."
 
-**Why here:** this is entry 1 with time added, and it is the version with
+**Why here:** this is the Next entry with time added, and it is the version with
 budget attached. "Prove our detection coverage didn't regress this quarter" is
 a compliance sentence. Harder to sell to an individual, much easier to a team.
 It should not be built before 1, because it is 1 plus a scheduler.
 
-### 6. Engagement reporter — the deliverable, not the terminal
+### 5. Engagement reporter — the deliverable, not the terminal
 
 Consume opseclint's predicted output plus the telemetry captured during a
 purple-team engagement; emit a shareable HTML report: what was executed, what
@@ -161,7 +179,7 @@ fired, what did not, ranked blind spots, an ATT&CK layer.
 CISO, not the operator. Purple teams bill real hours assembling these by hand.
 It also proves the org can produce a *deliverable*, not only a terminal tool.
 
-### 7. Detection dojo — the teaching artifact
+### 6. Detection dojo — the teaching artifact
 
 A static site generated from the knowledge base: here is a command, guess what
 fires, reveal the techniques, telemetry, detections, and score.
@@ -170,7 +188,7 @@ fires, reveal the techniques, telemetry, detections, and score.
 the list and the only one whose value is reach rather than revenue — it makes
 the org legible to people who will never install a Rust CLI.
 
-### 8. Cloud / SaaS control plane
+### 7. Cloud / SaaS control plane
 
 The same thesis pointed at CloudTrail, Entra, Okta, Workspace: given an API
 call, what does it log and what detects it.
@@ -182,16 +200,16 @@ sources. Closer to a second company than a second tool.
 ## Horizon
 
 Bigger bets. Each is gated on something earlier on this page landing first —
-`opseclint-core` under Next, or an entry from the queue — and each is sketched
-rather than specified. That is the honest state of them. Roughly ordered by how
-soon the dependency clears.
+detection feasibility under Next, or an entry from the queue — and each is
+sketched rather than specified. That is the honest state of them. Roughly
+ordered by how soon the dependency clears.
 
 ### Agent substrate — ground truth for LLM agents doing security work
 
-`opseclint-core` ships an MCP server over the knowledge base. This is the
-larger version: a stable, versioned service that answers *what does this action
-emit, what detects it, and could **you** see it* across every tool in the
-toolkit, not just opseclint.
+`opseclint-mcp` now serves the knowledge base to agents. This is the larger
+version: a stable, versioned service that answers *what does this action emit,
+what detects it, and could **you** see it* across every tool in the toolkit,
+not just opseclint.
 
 **Why it matters:** agents are being pointed at security work right now and
 they have no ground truth. They hallucinate detections and confidently misjudge
@@ -199,14 +217,26 @@ what is observable. An agent grounded in a real knowledge base and a real
 evaluator is materially less wrong, and that makes this infrastructure rather
 than a tool.
 
-**Depends on:** `opseclint-core`, then breadth from the queue.
+**Depends on:** `opseclint-core` and `opseclint-mcp` — both shipped, so what
+remains gating this is breadth from the queue, and the *could you see it* half
+specifically needs detection feasibility.
 
-**The hard part, and it is the whole thing:** agents amplify whatever they are
-given. Our abstain-honestly property stops being a nice trait and becomes
+**The hard part, and it is still the whole thing:** agents amplify whatever they
+are given. Our abstain-honestly property stops being a nice trait and becomes
 load-bearing — an `INDETERMINATE` that an agent silently rounds to "not
 detected" is worse than no answer at all. The API has to make uncertainty
 impossible to discard, which is an interface design problem more than a
 technical one.
+
+`opseclint-mcp` took a first pass: no result field is a boolean about detection,
+every result names what it does not establish, and `describe_coverage` keeps
+"nothing matched" distinguishable from "not modeled". That is the tractable
+version — it makes uncertainty impossible to drop *silently*, which is not the
+same as impossible to drop. Whether it actually changes how an agent reports is
+unmeasured, and measuring it is the honest next question rather than assuming
+the design worked. A versioned service spanning several tools multiplies the
+surface where an abstention can be flattened, so this gets harder with breadth,
+not easier.
 
 **Timing:** the most time-sensitive item on this page. The window where being
 the obvious grounding source is winnable is now, not in three years.
@@ -222,7 +252,7 @@ your alerts" but "here are the 340 things that would leave no trace here."
 artifact a defender could hold, and it is the purest expression of the thesis —
 absence of a finding, made explicit and enumerable instead of assumed.
 
-**Depends on:** detection feasibility (queue 1), plus real knowledge-base
+**Depends on:** detection feasibility (Next), plus real knowledge-base
 breadth.
 
 **The hard part is an honesty trap.** "Invisible" is only meaningful relative
@@ -240,7 +270,7 @@ step-by-step verdict with the specific collection gap at each step.
 **Why it matters:** every team does this by hand, badly, in a meeting. It turns
 threat intel from reading material into a ranked remediation list.
 
-**Depends on:** detection feasibility (queue 1).
+**Depends on:** detection feasibility (Next).
 
 **The hard part:** parsing prose intel into a technique sequence is the
 unsolved half. The tractable version takes structured input — an ATT&CK
@@ -259,7 +289,7 @@ volume you can afford, emit an optimized config.
 engineering, and it is the natural inverse of the feasibility checker — same
 model, run backwards.
 
-**Depends on:** detection feasibility (queue 1), whose config parsing this
+**Depends on:** detection feasibility (Next), whose config parsing this
 reuses in reverse.
 
 **The hard part, and it is a different kind of hard:** this is the first tool
@@ -279,8 +309,8 @@ requires, and refuses to claim coverage the environment cannot support.
 — copy a YAML file from a repo, hope. Declared dependencies plus a feasibility
 check is the piece that makes "detection-as-code" mean something.
 
-**Depends on:** `sigmalint` (queue 2), the regression harness (queue 3), and
-feasibility (queue 1). Dependency resolution is meaningless without all three.
+**Depends on:** `sigmalint` (queue 1), the regression harness (queue 2), and
+feasibility (Next). Dependency resolution is meaningless without all three.
 
 **The hard part:** package managers are won by distribution and content, not by
 design. This is worthless without publishers and adopters, which makes it an
@@ -298,7 +328,7 @@ and largely qualitative. An empirical, reproducible benchmark would be cited
 constantly — and it is close to free, because it is existing tooling pointed at
 public data.
 
-**Depends on:** detection feasibility (queue 1). Cheapest item in this section
+**Depends on:** detection feasibility (Next). Cheapest item in this section
 by a wide margin once that exists.
 
 **The hard part:** publishing a number that grades other people's ecosystems
@@ -318,16 +348,18 @@ coverage plus duplicates and orphans.
 
 Cheap — `--navigator` and the technique index already exist, so maybe two
 weeks. But DeTT&CT and Sigma's own tooling occupy this space, and it measures
-rule *presence*, which is precisely the metric entry 1 exists to debunk.
+rule *presence*, which is precisely the metric detection feasibility exists to
+debunk.
 Building it would put us slightly at odds with our own thesis.
 
 ### Sensor-config auditor
 
-The config half of entry 1 on its own: given a Sysmon config, which of
+The config half of the Next entry on its own: given a Sysmon config, which of
 opseclint's 233 modeled actions go dark? No ruleset involved.
 
 Smallest scope and ships fastest, but it is a **feature, not a product** — it
-belongs as an opseclint flag. It is also the right way to prototype entry 1:
+belongs as an opseclint flag. It is also the right way to prototype detection
+feasibility:
 add config parsing behind a flag, see whether the output is compelling, then
 split it out.
 
