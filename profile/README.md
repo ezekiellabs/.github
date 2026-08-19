@@ -2,6 +2,13 @@
   <img src="assets/owl.svg" alt="Ezekiel Labs" width="112" height="112">
   <h1>Ezekiel Labs</h1>
   <p><strong>Open-source red · blue · purple team tooling.</strong></p>
+
+[![opseclint](https://img.shields.io/crates/v/opseclint?style=plastic&logo=rust&logoColor=white&label=opseclint)](https://crates.io/crates/opseclint)
+[![Rust](https://img.shields.io/badge/Rust-000000?style=plastic&logo=rust&logoColor=white)](https://www.rust-lang.org)
+[![MITRE ATT&CK](https://img.shields.io/badge/MITRE_ATT%26CK-C21D24?style=plastic)](https://attack.mitre.org)
+[![Sigma](https://img.shields.io/badge/Sigma-1F6FEB?style=plastic)](https://sigmahq.io)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue?style=plastic)](https://github.com/ezekiellabs/.github/blob/main/LICENSE)
+
 </div>
 
 Ezekiel Labs builds practical security tools that live in the space between
